@@ -1,0 +1,327 @@
+<html>
+<head>
+<style>
+body{
+	margin:0px;
+	padding:0px;
+	font-family: Arial, Helvetica, sans-serif;
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto;
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 0;
+	border-radius:20px;
+    width: 35%;
+	height:35%;
+}
+.googleSignInButton{
+    margin: 11% auto;
+    background-color: #ff3b3b;
+    border: 0;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 20px;
+    color: white;
+    padding: 20px;
+}
+.userProfile{
+	width:29%;
+	height:95%;
+	border:0;
+	float:left;
+	padding:1%;
+	background-color:#f3f3f3;
+	margin:0px;
+}
+.messagesequest{
+	width:30%;
+	height:100%;
+	border:0;
+	position:relative;
+	padding:0px;
+	margin:0px;
+}
+.typeMessage{
+	width:69%;
+	height:100%;
+	border:0;
+	float:left;
+	padding:0px;
+	margin:0px;
+	position: relative;
+}
+.typeMessage .sendContainer{
+	position: absolute;
+    bottom: 10;
+    left: 0;
+	border:0;
+	width:100%;
+	padding:5px 0px 10px 0px;
+}
+input#sendMassage,#newCompose{
+	width:90%;
+	border:0px;
+	padding:10px;
+	margin:0;
+	border-bottom:2px solid #4CFBB8;
+	font-size:17px;
+}
+input#sendMassage:hover , input#sendMassage:focus , #newCompose:hover , #newCompose:focus{
+	border-bottom:2px solid #00AF6B;
+	outline:none;
+}
+button#send{
+	width:9%;
+	margin:0;
+	padding:7px;
+	color:white;
+	border:0;
+	font-size:19px;
+	background-color:#4CFBB8;
+}
+button#send:hover{
+	outline:none;
+	background-color:#00AF6B;
+}
+#mainUserImg{
+    width: 100%;
+    border-radius: 100%;
+}
+#mainUserName{
+	font-size:30px;
+	margin-top:2%;
+}
+#mainUserEmail{
+	font-size:15px;
+}
+#composeButton{
+	border:0;
+	width:45%;
+	padding:3%;
+	background-color:#4CFBB8;
+	color:white;
+	font-weight:bold;
+	font-size:15px;
+	position: absolute;
+    top: 18%;
+    left: 0;
+	border-radius:20px;
+}
+#LogoutButton{
+	border:0;
+	width:45%;
+	padding:3%;
+	margin:10px;
+	background-color:#FF6347;
+	color:white;
+	font-weight:bold;
+	font-size:15px;
+	border-radius:20px;
+}
+#allRecivedMessages{
+	overflow-Y:auto;
+	overflow-X:hidden;
+	position: absolute;
+	bottom:15%;
+	right:0;
+	left:0;
+	padding:5px;
+}
+.senderMessageBlock,.reciverMessageBlock{
+	width:100%;
+	padding: 0px;
+    margin: 0;
+}
+.reciverMessage{
+	text-align:left;
+	float:left;
+	padding:10px;
+	background-color:#008080;
+    color: white;
+    font-size: 25px;
+	clear:both;
+    border-radius: 25px;
+	margin:0px;
+}
+.senderMessage{
+	text-align:right;
+	clear:both;
+	float:right;
+	padding:10px;
+	background-color: #4cfbb8;
+    color: white;
+    font-size: 25px;
+	margin-top:0px;
+    border-radius: 25px;
+}
+.senderId{
+	text-align:left;
+	clear:both;
+	color:#a29f9f;
+	float:left;
+	font-size: 12px;
+	margin-bottom:20px;
+}
+</style>
+</head>
+<body>
+<div id="myModal" class="modal">
+  <div class="modal-content">
+ <center><h1>Please Sign in</h1></center>
+ <center><a href="javascript:googleSignIn()"><button class="googleSignInButton">Sign in with Google</button></a></center>
+  </div>
+</div>
+<div id="mainContents">
+<div class="userProfile">
+<center>
+<img id="mainUserImg" alt="User Image">
+<span id="mainUserName"></span>
+<br>
+<span id="mainUserEmail"></span>
+<br>
+<button id="LogoutButton" onClick="logoutUser();">Logout</button>
+</center>
+</div>
+<div class="typeMessage">
+
+<div id="allRecivedMessages"></div>
+<div class="sendContainer">
+<input type="text" placeholder="Your Message" id="sendMassage">
+<button id="send" onClick="sendMessage();">Send</button>
+</div>
+</div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+<script>
+var modal = document.getElementById('myModal');
+function promptSignIn(){
+	 modal.style.display = "block";
+	 document.getElementById('mainContents').style.display = "none";
+}
+  var config = {
+    apiKey: "AIzaSyCPk_J5n3xgPGmSEVulmnx8zPYS8vm78y0",
+    authDomain: "authtest-3ce9b.firebaseapp.com",
+    databaseURL: "https://authtest-3ce9b.firebaseio.com",
+    projectId: "authtest-3ce9b",
+    storageBucket: "authtest-3ce9b.appspot.com",
+    messagingSenderId: "986957786585"
+  };
+  
+  firebase.initializeApp(config);
+  
+  var database = firebase.database();
+  var provider = new firebase.auth.GoogleAuthProvider();
+  
+function googleSignIn(){
+var user = firebase.auth().currentUser;
+if (user) {
+alert("already sign in");
+} else {
+firebase.auth().signInWithRedirect(provider);
+firebase.auth().getRedirectResult().then(function(result) {
+  if (result.credential) {
+    var token = result.credential.accessToken;
+  }
+   var user = result.user;
+}).catch(function(error) {
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  var email = error.email;
+  var credential = error.credential;
+});	 
+}
+}
+var name,email,uid,photoURL;
+firebase.auth().onAuthStateChanged(function(user) {
+var user = firebase.auth().currentUser;
+  if (user) {
+if (user != null) {
+  user.providerData.forEach(function (profile) {
+	name = profile.displayName;
+	email = profile.email;
+	uid = profile.uid;
+	photoURL = profile.photoURL;
+  });
+  startListeningMain();
+  setValues();
+}
+} else {
+ promptSignIn();
+  }
+});
+function sendMessage() {
+	var message = document.getElementById("sendMassage").value;
+	if(message != null || message != ""){
+firebase.database().ref('message/').push({
+    message: message,
+	sender:email
+	
+  });
+  document.getElementById("sendMassage").value = "";
+	}
+}
+var startListeningMain = function() {
+var messages = document.getElementById("messages");
+firebase.database().ref('message/').on('child_added', function(data) {
+  
+  if(data.val().sender == email){
+        var msgTextElement = document.createElement("p");
+		msgTextElement.classList.add('senderMessage');
+        msgTextElement.textContent = data.val().message;
+  
+        var msgElement = document.createElement("div");
+		msgElement.classList.add('senderMessageBlock');
+        msgElement.appendChild(msgTextElement);
+  }else{
+        var msgTextElement = document.createElement("p");
+		msgTextElement.classList.add('reciverMessage');
+        msgTextElement.textContent = data.val().message;
+		
+		var senderTextElement = document.createElement("p");
+		senderTextElement.classList.add('senderId');
+        senderTextElement.textContent = "-"+data.val().sender;
+  
+		
+        var msgElement = document.createElement("div");
+		msgElement.classList.add('reciverMessageBlock');
+        msgElement.appendChild(msgTextElement);
+		 msgElement.appendChild(senderTextElement);
+  }
+        document.getElementById("allRecivedMessages").appendChild(msgElement);
+});
+}
+function setValues(){
+	document.getElementById("mainUserImg").src = photoURL;
+	document.getElementById("mainUserName").innerHTML =  name;
+	document.getElementById("mainUserEmail").innerHTML = email;
+}
+function logoutUser(){
+firebase.auth().signOut().then(function() {
+  promptSignIn();
+}).catch(function(error) {
+   alert("Error Accord");
+});
+}
+document.getElementById("sendMassage")
+    .addEventListener("keyup", function(event) {
+    event.preventDefault();
+    if (event.keyCode == 13) {
+        document.getElementById("send").click();
+    }
+});
+  </script>
+</body>
+</html>
